@@ -21,6 +21,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/onsi/ginkgo/v2/formatter"
@@ -588,7 +589,16 @@ Note that By does not generate a new Ginkgo node - rather it is simply syntactic
 You can learn more about By here: https://onsi.github.io/ginkgo/#documenting-complex-specs-by
 */
 func By(text string, callback ...func()) {
-	exitIfErr(global.Suite.By(text, callback...))
+	t := time.Now()
+	formatter := formatter.NewWithNoColorBool(reporterConfig.NoColor)
+	GinkgoWriter.Println(formatter.F("{{bold}}STEP:{{/}} %s {{gray}}%s{{/}}", text, t.Format(types.GINKGO_TIME_FORMAT)))
+
+	if len(callback) == 1 {
+		callback[0]()
+	}
+	if len(callback) > 1 {
+		panic("just one callback per By, please")
+	}
 }
 
 /*
