@@ -10,6 +10,7 @@ package reporters
 import (
 	"fmt"
 	"io"
+	"os"
 	"runtime"
 	"strings"
 	"sync"
@@ -265,6 +266,11 @@ func (r *DefaultReporter) DidRun(report types.SpecReport) {
 	// If we have no content to show, jsut emit the header and return
 	if !reportHasContent {
 		r.emit(r.f(highlightColor + header + "{{/}}"))
+
+		// ginkgo v2 不会 flush stdout，导致要等到有 fail 的用例才会显示 pass 的绿色小点
+		// 其他 fail/flakey 为什么会显示呢？因为 newline 会 flush stdout
+		os.Stdout.Sync()
+
 		return
 	}
 
